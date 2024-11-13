@@ -73,16 +73,20 @@ function WorkdayHandler({ startDate }) {
   }, [startDate]);
 
   return (
-    <Box
+    <Box borderRadius={5}
       sx={{
         justifyContent: "center",
         alignItems: "center",
+        backgroundColor: '#3a444a',
+        minWidth: '100%',
+        minHeight: '100%',
       }}
     >
-      <h1>Shifts for {startDate || "Select a date"}</h1>
+      <Typography padding={5} variant="h1" letterSpacing={2} fontWeight={600} sx={{textAlign: 'center'}}>Shifts for {startDate || "Select a date"}</Typography>
       {error && <p>{error}</p>}
       <Box>
         <Grid2
+          padding={5}
           container
           direction="row"
           spacing={3}
@@ -125,12 +129,12 @@ function WorkdayHandler({ startDate }) {
                       </ListItemIcon>
                       <ListItemText
                         primary={
-                          shift.employee.firstName +
-                          " " +
-                          shift.employee.lastName
+                          shift.employee
+                            ? `${shift.employee.firstName} ${shift.employee.lastName}`
+                            : "No Employee Assigned"
                         }
                         secondary="Employee"
-                      ></ListItemText>
+                      />
                     </ListItem>
                     <ListItem>
                       <ListItemIcon>
