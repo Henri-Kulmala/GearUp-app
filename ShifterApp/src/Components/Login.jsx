@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import PropTypes from "prop-types";
 import axios from 'axios';
 
-function SignIn({ setAuthStatus }) {
+function Login({ setAuthStatus }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
@@ -14,7 +14,7 @@ function SignIn({ setAuthStatus }) {
         event.preventDefault();
 
         try {
-            // Attempt login
+            
             const response = await axios.post('http://localhost:8080/login', {
                 username,
                 password,
@@ -23,12 +23,12 @@ function SignIn({ setAuthStatus }) {
             if (response.status === 200) {
                 console.log("Login successful. Retrieving auth status...");
                 
-                // Retrieve the CSRF token from cookies if using Spring's CookieCsrfTokenRepository
+                
                 const csrfToken = document.cookie.split('; ')
                     .find(row => row.startsWith('XSRF-TOKEN='))
                     ?.split('=')[1];
 
-                // Check auth status with the CSRF token
+                
                 const statusResponse = await axios.get('http://localhost:8080/api/auth/status', {
                     withCredentials: true,
                     headers: { 'X-XSRF-TOKEN': csrfToken },
@@ -38,7 +38,7 @@ function SignIn({ setAuthStatus }) {
                 
                 if (statusResponse.data && statusResponse.data.isAuthenticated) {
                     setAuthStatus({ isAuthenticated: true, role: statusResponse.data.role });
-                    navigate('/Home'); // Redirect to HomePage
+                    navigate('/Home'); 
                 } else {
                     setError("Authentication status check failed.");
                 }
@@ -115,8 +115,8 @@ function SignIn({ setAuthStatus }) {
     );
 }
 
-SignIn.propTypes = {
+Login.propTypes = {
     setAuthStatus: PropTypes.func.isRequired,
 };
 
-export default SignIn;
+export default Login;

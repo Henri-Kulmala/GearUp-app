@@ -1,211 +1,132 @@
-import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import {
   Box,
-  Grid2,
+  Typography,
+  IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Typography,
+  Grid2,
 } from "@mui/material";
-import axios from "axios";
-import PropTypes from "prop-types";
-//import LabelImportantIcon from "@mui/icons-material/LabelImportant";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
 import PersonIcon from "@mui/icons-material/Person";
-import DoNotDisturbOnIcon from "@mui/icons-material/DoNotDisturbOn";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CoffeeIcon from "@mui/icons-material/Coffee";
+import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
 
-function WorkdayHandler({ startDate }) {
-  const [workday, setWorkday] = useState({});
-  const [error, setError] = useState(null);
-
-  const getCsrfToken = () => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; XSRF-TOKEN=`);
-    if (parts.length === 2) return parts.pop().split(";").shift();
-    return null;
-  };
-
-  useEffect(() => {
-    const fetchShiftsFromWorkday = async () => {
-      if (!startDate) return;
-      try {
-        const csrfToken = getCsrfToken();
-
-        const response = await axios.get(
-          `http://localhost:8080/workday/${startDate}`,
-          {
-            withCredentials: true,
-            headers: { "X-XSRF-TOKEN": csrfToken },
-            auth: { username: "admin", password: "admin" },
-          }
-        );
-
-        const fetchedWorkday = response.data;
-        const shifts = fetchedWorkday.shifts || [];
-
-        const groupedShifts = shifts.reduce((acc, shift) => {
-          if (!acc[shift.workstation]) acc[shift.workstation] = [];
-
-          const transformedShift = {
-            ...shift,
-            breaks: (shift.breaks || []).map((brk) => ({
-              ...brk,
-              breakCoverEmployee: (brk.breakCoverEmployee || []).map(
-                (employee) => employee.name || "Unknown"
-              ),
-            })),
-          };
-
-          acc[shift.workstation].push(transformedShift);
-          return acc;
-        }, {});
-
-        setWorkday(groupedShifts);
-      } catch (err) {
-        setError("Failed to fetch shifts");
-        console.error(err);
-      }
-    };
-
-    fetchShiftsFromWorkday();
-  }, [startDate]);
-
+const WorkdayHandler = ({ startDate, workday, onShiftAssign }) => {
   return (
-    <Box borderRadius={5}
+    <Box
+      borderRadius={5}
+      padding={3}
       sx={{
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: '#3a444a',
-        minWidth: '100%',
-        minHeight: '100%',
+        textAlign: "center",
+        backgroundColor: "#21292e",
+        color: "#ffffff",
       }}
     >
-      <Typography padding={5} variant="h1" letterSpacing={2} fontWeight={600} sx={{textAlign: 'center'}}>Shifts for {startDate || "Select a date"}</Typography>
-      {error && <p>{error}</p>}
-      <Box>
-        <Grid2
-          padding={5}
-          container
-          direction="row"
-          spacing={3}
-          sx={{
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+      <Typography variant="h4" fontWeight={600} gutterBottom mb={5}>
+        Työvuorot päivämäärälle {startDate || "Select a date"}
+      </Typography>
+      {Object.keys(workday).length === 0 ? (
+        <Typography variant="body1" color="#f2f5a2">
+          No workday data available. Please check the selected date.
+        </Typography>
+      ) : (
+        <Grid2 container spacing={3}>
           {Object.keys(workday).map((workstation) => (
-            <Grid2
-              container
-              direction="column"
-              spacing={2}
-              key={workstation}
-              bgcolor="#59676b"
-              borderRadius={2}
-              sx={{
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Typography sx={{ mt: 4, mb: 2 }} variant="h2">
-                {workstation}
-              </Typography>
-
-              <Box borderRadius={2}>
-                {workday[workstation].map((shift) => (
-                  <List key={shift.shiftId}>
-                    <Typography
-                      variant="h4"
-                      fontWeight="light"
-                      textAlign="center"
-                      sx={{ mb: 2 }}
+            <Grid2 item xs={12} sm={6} md={4} key={workstation}>
+              <Box
+                sx={{
+                  padding: 2,
+                  backgroundColor: "#3a444a",
+                  borderRadius: 2,
+                  boxShadow: 1,
+                }}
+              >
+                <Typography variant="h6">{workstation}</Typography>
+                {Array.isArray(workday[workstation]) ? (
+                  workday[workstation].map((shift) => (
+                    <Box
+                      key={shift.shiftId}
+                      sx={{
+                        margin: "8px 0",
+                        padding: 2,
+                        border: "1px solid gray",
+                        borderRadius: 2,
+                        backgroundColor: "#485761",
+                      }}
                     >
-                      {shift.shiftName}
-                    </Typography>
-                    <ListItem>
-                      <ListItemIcon>
-                        <PersonIcon />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={
-                          shift.employee
-                            ? `${shift.employee.firstName} ${shift.employee.lastName}`
-                            : "No Employee Assigned"
-                        }
-                        secondary="Employee"
-                      />
-                    </ListItem>
-                    <ListItem>
-                      <ListItemIcon>
-                        <CheckCircleIcon />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={shift.startTime}
-                        secondary="Start Time"
-                      ></ListItemText>
-                    </ListItem>
-                    <ListItem>
-                      <ListItemIcon>
-                        <DoNotDisturbOnIcon />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={shift.endTime}
-                        secondary="End Time"
-                      ></ListItemText>
-                    </ListItem>
-                    <ListItem>
-                      <ListItemIcon>
-                        <CoffeeIcon />
-                      </ListItemIcon>
-                      <ListItemText>Breaks:</ListItemText>{" "}
-                    </ListItem>
-
-                    {shift.breaks && shift.breaks.length > 0 ? (
+                      <List>
+                        <ListItem>
+                          <ListItemIcon>
+                            <AccessTimeFilledIcon />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={shift.shiftName}
+                            secondary={`${shift.startTime} - ${shift.endTime}`}
+                          />
+                          <IconButton color="dark">
+                            <EditIcon />
+                          </IconButton>
+                        </ListItem>
+                        <ListItem>
+                          <ListItemIcon>
+                            <PersonIcon />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={
+                              shift.employee
+                                ? `${shift.employee.firstName} ${shift.employee.lastName}`
+                                : "No Employee Assigned"
+                            }
+                            secondary="Assigned Employee"
+                          />
+                          <IconButton
+                            onClick={() => onShiftAssign(shift)}
+                            color="primary"
+                          >
+                            <AddIcon />
+                          </IconButton>
+                        </ListItem>
+                      </List>
                       <List>
                         {shift.breaks.map((brk, index) => (
                           <ListItem key={index}>
                             <ListItemText
-                              sx={{ pr: 2 }}
-                              primary={brk.breakStart}
-                              secondary="Start"
-                            ></ListItemText>
-
-                            <ListItemText
-                              primary={brk.breakEnd}
-                              secondary="End"
-                            ></ListItemText>
-                            <List>
-                              <ListItem>
-                                <ListItemText>Cover Employee:</ListItemText>
-                              </ListItem>
-                              {brk.breakCoverEmployee.map(
-                                (employeeName, empIndex) => (
-                                  <ListItem key={empIndex}>
-                                    {employeeName}
-                                  </ListItem>
-                                )
-                              )}
-                            </List>
+                              primary={`${brk.breakType}: ${brk.breakStart} - ${brk.breakEnd}`}
+                              secondary={
+                                brk.breakCoverEmployee
+                                  ? `Covered by: ${brk.breakCoverEmployee.firstName} ${brk.breakCoverEmployee.lastName}`
+                                  : "No Cover"
+                              }
+                            />
+                            <IconButton color="dark">
+                              <EditIcon />
+                            </IconButton>
                           </ListItem>
                         ))}
                       </List>
-                    ) : (
-                      <p>No breaks available</p>
-                    )}
-                  </List>
-                ))}
+                    </Box>
+                  ))
+                ) : (
+                  <Typography>
+                    No shifts available for this workstation.
+                  </Typography>
+                )}
               </Box>
             </Grid2>
           ))}
         </Grid2>
-      </Box>
+      )}
     </Box>
   );
-}
+};
 
 WorkdayHandler.propTypes = {
-  startDate: PropTypes.string.isRequired,
+  startDate: PropTypes.string, 
+  workday: PropTypes.object.isRequired, 
+  onShiftAssign: PropTypes.func.isRequired, 
 };
 
 export default WorkdayHandler;

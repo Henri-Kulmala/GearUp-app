@@ -1,10 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import WorkdayApp from './ShifterApp.jsx'
+import App from './App.jsx'
 import './index.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <WorkdayApp />
+    <App />
   </StrictMode>,
 )
