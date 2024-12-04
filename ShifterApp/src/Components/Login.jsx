@@ -1,50 +1,33 @@
 import { useState } from 'react';
 import { Box, Button, TextField, Typography, Container } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import PropTypes from "prop-types";
-import axios from 'axios';
+import api from "./ApiConfig";
+import {useAuth} from "./AuthContext";
 
-function Login({ setAuthStatus }) {
+function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
+    const { setAuth } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        setError(null);
 
         try {
-            
-            const response = await axios.post('http://localhost:8080/login', {
+            const response = await api.post('/api/auth/login', {
                 username,
                 password,
-            }, { withCredentials: true });
+              });
             
             if (response.status === 200) {
-                console.log("Login successful. Retrieving auth status...");
-                
-                
-                const csrfToken = document.cookie.split('; ')
-                    .find(row => row.startsWith('XSRF-TOKEN='))
-                    ?.split('=')[1];
-
-                
-                const statusResponse = await axios.get('http://localhost:8080/api/auth/status', {
-                    withCredentials: true,
-                    headers: { 'X-XSRF-TOKEN': csrfToken },
-                });
-                
-                console.log('Status response:', statusResponse);
-                
-                if (statusResponse.data && statusResponse.data.isAuthenticated) {
-                    setAuthStatus({ isAuthenticated: true, role: statusResponse.data.role });
-                    navigate('/Home'); 
-                } else {
-                    setError("Authentication status check failed.");
-                }
+                setAuth({ username, password });
+                navigate('/home');
             }
         } catch (err) {
             if (err.response && err.response.status === 401) {
+                console.log("Authenticated params", username, password)
                 setError("Invalid username or password.");
             } else {
                 console.error("Error signing in or retrieving status:", err);
@@ -115,8 +98,5 @@ function Login({ setAuthStatus }) {
     );
 }
 
-Login.propTypes = {
-    setAuthStatus: PropTypes.func.isRequired,
-};
 
 export default Login;

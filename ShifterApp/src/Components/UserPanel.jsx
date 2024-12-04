@@ -1,43 +1,41 @@
-import { Box, Typography, Button, TextField } from "@mui/material";
-
-
-
-
-
-
+import {
+  Box,
+  Tab
+} from "@mui/material";
+import TabContext from '@mui/lab/TabContext';
+import TabList from '@mui/lab/TabList';
+import TabPanel from '@mui/lab/TabPanel';
+import { useState } from "react";
+import UserHandler from "./UserHandler";
+import AddUsers from "./AddUsers";
 
 function UserPanel() {
-    return (
-        <Box>
-            <Typography variant="h3" pb={5}>
-              Hello, *username* 
-            </Typography>
-            <Box component="form" display="flex" flexDirection="column">
-                <TextField
-                    label="First Name"
-                    type="text"
-                    name="FirstName"
-                    disabled
-                />
-                <TextField
-                    label="Last Name"
-                    type="text"
-                    name="LastName"
-                    disabled
-                />
-                <TextField
-                    label="Password"
-                    type="password"
-                    name="Password"
-                    disabled
-                />
-                <Button variant="contained" color="primary" type="submit">
-                    Update Profile
-                </Button>
-            </Box>
+  const [value, setValue] = useState("1");
 
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
+  return (
+    <Box>
+      <TabContext value={value}>
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <TabList value={value} onChange={handleChange}>
+            <Tab value="1" label="User Profile" />
+            <Tab value="2" label="Add User" />
+          </TabList>
         </Box>
 
-    )
+        <Box>
+          <TabPanel value="1">
+            <UserHandler />
+          </TabPanel>
+          <TabPanel value="2">
+            <AddUsers />
+          </TabPanel>
+        </Box>
+      </TabContext>
+    </Box>
+  );
 }
 export default UserPanel;

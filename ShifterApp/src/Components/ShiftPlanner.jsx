@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import DrawerComponent from "./DrawerComponent";
 import WorkdayHandler from "./WorkdayHandler";
 import CalendarComponent from "./CalendarComponent";
-import axios from "axios";
+import api from "./ApiConfig";
 import EmployeeHandler from "./EmployeeHandler";
 import { Box, Button, Typography, IconButton } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -13,12 +13,7 @@ import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 
 const ShiftPlanner = () => {
   // Define the CSRF token function
-  const getCsrfToken = () => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; XSRF-TOKEN=`);
-    if (parts.length === 2) return parts.pop().split(";").shift();
-    return null; // If token not found
-  };
+  
 
   const [checked, setChecked] = useState();
   const fetchedEmployees = EmployeeHandler(); // Fetch employees
@@ -28,20 +23,15 @@ const ShiftPlanner = () => {
   const [selectedShift, setSelectedShift] = useState(null);
   const [startDate, setStartDate] = useState(null); // Selected date for the workday
   const [error, setError] = useState(null);
-  const csrfToken = getCsrfToken(); // CSRF token retrieved here
+
 
   // Fetch existing workday
   const fetchWorkday = async () => {
     if (!startDate) return; // Don't fetch if no date is selected
     try {
       const formattedDate = startDate.format("DD-MM-YYYY");
-      const response = await axios.get(
-        `http://localhost:8080/workday/${formattedDate}`,
-        {
-          withCredentials: true,
-          headers: { "X-XSRF-TOKEN": csrfToken },
-          auth: { username: "admin", password: "admin" },
-        }
+      const response = await api.get(
+        `workday/${formattedDate}`
       );
 
       const fetchedWorkday = response.data;
@@ -63,7 +53,7 @@ const ShiftPlanner = () => {
   // Use useEffect to call fetchWorkday when startDate or csrfToken changes
   useEffect(() => {
     fetchWorkday();
-  }, [startDate, csrfToken]);
+  }, [startDate]);
 
   useEffect(() => {
     setAvailableEmployees(fetchedEmployees);
@@ -85,14 +75,9 @@ const ShiftPlanner = () => {
         .map((shift) => shift.shiftId);
 
       // Send the PUT request to save the shifts for the selected date
-      await axios.put(
-        `http://localhost:8080/api/workdays/${formattedDate}/shift`,
-        shiftIds, // Send an array of shift IDs as the payload
-        {
-          withCredentials: true,
-          headers: { "X-XSRF-TOKEN": csrfToken },
-          auth: { username: "admin", password: "admin" },
-        }
+      await api.put(
+        `/api/workdays/${formattedDate}/shift`,
+        shiftIds, 
       );
 
       setError(null);
@@ -126,17 +111,10 @@ const ShiftPlanner = () => {
 
     try {
       // Send the updated employee to the server for the selected shift
-      await axios.patch(
-        `http://localhost:8080/api/shifts/${selectedShift.shiftId}/${employee.employeeId}`,
+      await api.patch(
+        `/api/shifts/${selectedShift.shiftId}/${employee.employeeId}`,
         { employee: employee.employeeId }, // Correct payload structure
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-            "X-XSRF-TOKEN": csrfToken,
-          },
-          auth: { username: "admin", password: "admin" },
-        }
+        
       );
 
       // Refresh the workday data after assigning the employee

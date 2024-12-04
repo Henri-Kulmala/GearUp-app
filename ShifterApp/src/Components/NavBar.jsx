@@ -39,7 +39,7 @@ function NavBar() {
   };
 
   return (
-    <AppBar position="fixed" sx={{backgroundColor:'#3a444a'}}>
+    <AppBar position="fixed" sx={{ backgroundColor: "#3a444a" }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
           <Link
@@ -91,7 +91,10 @@ function NavBar() {
             sx={{ display: { xs: "none", md: "flex" }, ml: "auto", pr: "5rem" }}
             gap={4}
           >
-            <Link to="/shiftplanner" style={{ textDecoration: "none", color: "white" }}>
+            <Link
+              to="/shiftplanner"
+              style={{ textDecoration: "none", color: "white" }}
+            >
               ShiftPlanner
             </Link>
             <Link
@@ -100,7 +103,6 @@ function NavBar() {
             >
               Schedule
             </Link>
-          
           </Box>
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
@@ -127,7 +129,7 @@ function NavBar() {
               <MenuItem onClick={() => handleNavigate("/userpanel")}>
                 Account
               </MenuItem>
-              <MenuItem onClick={() => handleNavigate("/login")}>
+              <MenuItem onClick={() => handleNavigate("/")}>
                 Logout
               </MenuItem>
             </Menu>
