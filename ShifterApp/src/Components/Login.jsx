@@ -1,40 +1,26 @@
 import { useState } from 'react';
 import { Box, Button, TextField, Typography, Container } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import api from "./ApiConfig";
-import {useAuth} from "./AuthContext";
+import { useAuth } from "./AuthContext";
 
 function Login() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState(null);
-    const { setAuth } = useAuth();
+
     const navigate = useNavigate();
+    const { login } = useAuth();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        setError(null);
-
-        try {
-            const response = await api.post('/api/auth/login', {
-                username,
-                password,
-              });
-            
-            if (response.status === 200) {
-                setAuth({ username, password });
-                navigate('/home');
-            }
-        } catch (err) {
-            if (err.response && err.response.status === 401) {
-                console.log("Authenticated params", username, password)
-                setError("Invalid username or password.");
-            } else {
-                console.error("Error signing in or retrieving status:", err);
-                setError("An unexpected error occurred.");
-            }
-        }
-    };
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      await login(username, password);
+      navigate('/home');
+    } catch {
+      setError("Invalid username or password");
+    }
+  };
 
     return (
         <Container component="main" maxWidth="xs">
@@ -58,7 +44,7 @@ function Login() {
                         {error}
                     </Typography>
                 )}
-                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                <Box component="form" onSubmit={handleLogin} noValidate sx={{ mt: 1 }}>
                     <TextField
                         margin="normal"
                         required

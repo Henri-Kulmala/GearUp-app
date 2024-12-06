@@ -13,7 +13,7 @@ import {
 import api from "./ApiConfig";
 import { useEffect, useState } from "react";
 
-const UserHandler = () => {
+const AddUsers = () => {
   const [userList, setUserList] = useState([]);
   const [employeeList, setEmployeeList] = useState([]);
   const [editedUser, setEditedUser] = useState({
@@ -218,4 +218,4 @@ const UserHandler = () => {
     </Box>
   );
 };
-export default UserHandler;
+export default AddUsers;
