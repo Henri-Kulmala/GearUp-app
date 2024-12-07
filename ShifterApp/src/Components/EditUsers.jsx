@@ -1,22 +1,12 @@
-import {
-  Box,
-  TextField,
-  Button,
-  Alert,
-  Typography,
-  Select,
-  InputLabel,
-  FormControl,
-  MenuItem,
-} from "@mui/material";
-import api from "./ApiConfig";
 import { useEffect, useState } from "react";
+import { Box, TextField, Button, Alert, Typography, MenuItem } from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
+import api from "./ApiConfig";
 
 const EditUsers = () => {
   const [userList, setUserList] = useState([]);
   const [employeeList, setEmployeeList] = useState([]);
-  
-  const [originalUser, setOriginalUser] = useState(null); // Store original user data for comparison
+  const [originalUser, setOriginalUser] = useState(null);
   const [editedUser, setEditedUser] = useState({
     userId: "",
     username: "",
@@ -46,12 +36,11 @@ const EditUsers = () => {
     }
   };
 
-  // Validate password if provided
   const isValidPassword = (password) =>
     /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{5,30}$/.test(password);
 
-  const handleUserSelection = (userId) => {
-    const selectedUser = userList.find((u) => u.userId === Number(userId));
+  const handleUserSelection = (selectedUser) => {
+    // `selectedUser` will be the entire user object selected from Autocomplete
     if (selectedUser) {
       setOriginalUser(selectedUser);
       setEditedUser({
@@ -85,21 +74,19 @@ const EditUsers = () => {
       return;
     }
 
-    // Construct patch object based on changes
-    const patchData = {};
-
-    // Compare fields to originalUser to determine what changed
     if (!originalUser) {
       setError("Original user data not loaded. Please select a user again.");
       return;
     }
+
+    const patchData = {};
 
     // Check username change
     if (editedUser.username && editedUser.username !== originalUser.username) {
       patchData.username = editedUser.username;
     }
 
-    // Check password only if provided
+    // Password changes only if provided
     if (editedUser.password) {
       if (!isValidPassword(editedUser.password)) {
         setError("Password must be 5-30 chars, include one number and one uppercase letter.");
@@ -118,8 +105,8 @@ const EditUsers = () => {
     }
 
     // Check employee change
-    if (editedUser.employee && editedUser.employee !== (originalUser.employee ? originalUser.employee.employeeId.toString() : "")) {
-      // If employee changed, maybe regenerate username or just patch employee
+    const originalEmpId = originalUser.employee ? originalUser.employee.employeeId.toString() : "";
+    if (editedUser.employee && editedUser.employee !== originalEmpId) {
       const selectedEmployee = employeeList.find((emp) => emp.employeeId === Number(editedUser.employee));
       if (!selectedEmployee) {
         setError("Selected employee not found.");
@@ -136,7 +123,6 @@ const EditUsers = () => {
 
     try {
       await api.patch(`/api/users/${editedUser.userId}`, patchData);
-      console.log(patchData);
       alert("User updated successfully!");
 
       // Reset form and refetch users
@@ -151,7 +137,6 @@ const EditUsers = () => {
       setOriginalUser(null);
       await fetchUsers();
     } catch (error) {
-      console.log(patchData);
       console.error("Error editing user", error);
       setError("Failed to edit user.");
     }
@@ -169,45 +154,48 @@ const EditUsers = () => {
       </Typography>
       {error && <Alert severity="error">{error}</Alert>}
       <form onSubmit={handleUserEdit}>
-        <FormControl fullWidth sx={{ marginBottom: 2 }}>
-          <InputLabel id="selectUserLabel">User</InputLabel>
-          <Select
-            labelId="selectUserLabel"
-            value={editedUser.userId || ""}
-            onChange={(e) => handleUserSelection(e.target.value)}
-            label="User"
-          >
-            <MenuItem value="">Select User</MenuItem>
-            {userList.map((user) => (
-              <MenuItem key={user.userId} value={user.userId}>
-                {user.username}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
 
-        <FormControl fullWidth sx={{ marginBottom: 2 }}>
-          <InputLabel id="selectEmployeeLabel">Employee</InputLabel>
-          <Select
-            labelId="selectEmployeeLabel"
-            value={editedUser.employee || ""}
-            onChange={(e) =>
-              setEditedUser({
-                ...editedUser,
-                employee: e.target.value,
-              })
-            }
-            label="Employee"
-          >
-            <MenuItem value="">Select Employee</MenuItem>
-            {employeeList.map((employee) => (
-              <MenuItem key={employee.employeeId} value={employee.employeeId}>
-                {employee.firstName} {employee.lastName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        {/* Autocomplete for User Selection with search functionality */}
+        <Autocomplete
+          sx={{ marginBottom: 2 }}
+          options={userList}
+          getOptionLabel={(option) => option.username}
+          value={userList.find(u => u.userId === Number(editedUser.userId)) || null}
+          onChange={(event, newValue) => {
+            handleUserSelection(newValue);
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Search or Select User"
+              variant="outlined"
+            />
+          )}
+        />
 
+        {/* Employee Selection */}
+        <TextField
+          select
+          fullWidth
+          sx={{ marginBottom: 2 }}
+          label="Employee"
+          value={editedUser.employee || ""}
+          onChange={(e) =>
+            setEditedUser({
+              ...editedUser,
+              employee: e.target.value,
+            })
+          }
+        >
+          <MenuItem value="">Select Employee</MenuItem>
+          {employeeList.map((employee) => (
+            <MenuItem key={employee.employeeId} value={employee.employeeId}>
+              {employee.firstName} {employee.lastName}
+            </MenuItem>
+          ))}
+        </TextField>
+
+        {/* Username, Password, Role Fields */}
         <TextField
           fullWidth
           sx={{ marginBottom: 2 }}
@@ -242,23 +230,22 @@ const EditUsers = () => {
           }
         />
 
-        <FormControl fullWidth sx={{ marginBottom: 2 }}>
-          <InputLabel id="selectRoleLabel">Role</InputLabel>
-          <Select
-            labelId="selectRoleLabel"
-            value={editedUser.role || ""}
-            onChange={(e) =>
-              setEditedUser({
-                ...editedUser,
-                role: e.target.value,
-              })
-            }
-            label="Role"
-          >
-            <MenuItem value="USER">User</MenuItem>
-            <MenuItem value="ADMIN">Admin</MenuItem>
-          </Select>
-        </FormControl>
+        <TextField
+          select
+          fullWidth
+          sx={{ marginBottom: 2 }}
+          label="Role"
+          value={editedUser.role || ""}
+          onChange={(e) =>
+            setEditedUser({
+              ...editedUser,
+              role: e.target.value,
+            })
+          }
+        >
+          <MenuItem value="USER">User</MenuItem>
+          <MenuItem value="ADMIN">Admin</MenuItem>
+        </TextField>
 
         <Button type="submit" variant="contained" color="primary">
           Update User

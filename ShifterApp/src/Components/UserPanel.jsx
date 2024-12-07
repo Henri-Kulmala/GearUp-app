@@ -14,7 +14,7 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 
 import UserHandler from "./UserHandler";
-import AddUsers from "./AddUsers";
+import UserForm from "./UserForm";
 import EditUsers from "./EditUsers";
 
 function UserPanel() {
@@ -98,7 +98,7 @@ function UserPanel() {
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList value={value} onChange={handleChange}>
             <Tab value="1" label="User Profile" />
-            <Tab value="2" label="Add User" />
+            <Tab value="2" label="User Form" />
             <Tab value="3" label="Edit User" />
           </TabList>
         </Box>
@@ -108,7 +108,7 @@ function UserPanel() {
             <UserHandler />
           </TabPanel>
           <TabPanel value="2">
-            <AddUsers />
+            <UserForm />
           </TabPanel>
           <TabPanel value="3">
             <EditUsers />
