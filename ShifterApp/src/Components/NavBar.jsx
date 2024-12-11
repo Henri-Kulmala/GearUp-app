@@ -86,7 +86,7 @@ function NavBar() {
           </Box>
           <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
 
-          {/*Navigointipalkin oikea puoli*/}
+
 
           <Box
             sx={{ display: { xs: "none", md: "flex" }, ml: "auto", pr: "5rem" }}

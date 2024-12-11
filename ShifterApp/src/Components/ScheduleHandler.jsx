@@ -10,7 +10,6 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import PropTypes from "prop-types";
-//import LabelImportantIcon from "@mui/icons-material/LabelImportant";
 import PersonIcon from "@mui/icons-material/Person";
 import DoNotDisturbOnIcon from "@mui/icons-material/DoNotDisturbOn";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -82,7 +81,7 @@ function WorkdayHandler({ startDate }) {
         minHeight: '100%',
       }}
     >
-      <Typography padding={5} variant="h1" letterSpacing={2} fontWeight={600} sx={{textAlign: 'center'}}>Shifts for {startDate || "Select a date"}</Typography>
+      <Typography padding={5} variant="h2" letterSpacing={2} fontWeight={600} sx={{textAlign: 'center'}}>Työvuorot päivälle {startDate || "Valitse päivämäärä"}</Typography>
       {error && <p>{error}</p>}
       <Box>
         <Grid2

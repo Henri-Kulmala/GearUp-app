@@ -8,11 +8,11 @@ export const AuthProvider = ({ children }) => {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    // On app load, check if there's an existing authenticated session
+
     const init = async () => {
       try {
         const response = await api.get("/api/auth/session");
-        setAuth(response.data); // { username: ... }
+        setAuth(response.data); 
       } catch {
         setAuth(null);
       }
@@ -22,19 +22,19 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (username, password) => {
-    // Prepare form data for form login
+
     const formData = new URLSearchParams();
     formData.append("username", username);
     formData.append("password", password);
 
-    // Perform login with form-encoded data
+
     await api.post("/api/auth/login", formData, {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
     });
 
-    // After login, check session again
+
     const response = await api.get("/api/auth/session");
     setAuth(response.data);
   };

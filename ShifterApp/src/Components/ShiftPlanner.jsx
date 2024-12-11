@@ -5,13 +5,11 @@ import WorkdayHandler from "./WorkdayHandler";
 import CalendarComponent from "./CalendarComponent";
 import api from "./ApiConfig";
 import EmployeeHandler from "./EmployeeHandler";
-import { Box, Button, Typography, IconButton } from "@mui/material";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch from "@mui/material/Switch";
-import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
+import { Box, Button, Alert } from "@mui/material";
+
 
 const ShiftPlanner = () => {
-  const [checked, setChecked] = useState();
+
   const fetchedEmployees = EmployeeHandler();
   const [availableEmployees, setAvailableEmployees] = useState([]);
   const [workday, setWorkday] = useState({});
@@ -19,6 +17,7 @@ const ShiftPlanner = () => {
   const [selectedShift, setSelectedShift] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   const fetchWorkday = async () => {
     if (!startDate) return;
@@ -68,9 +67,10 @@ const ShiftPlanner = () => {
       await api.put(`/api/workdays/${formattedDate}/shift`, shiftIds);
 
       setError(null);
-      alert("Workday saved successfully!");
+      setSuccess("Työpäivä tallennettu onnistuneesti!");
     } catch (err) {
-      setError("Failed to save workday. Please try again.");
+      setSuccess(null);
+      setError("Ongelma työpäivän tallentamisessa");
       console.error("Error saving workday:", err);
     }
   };
@@ -85,9 +85,7 @@ const ShiftPlanner = () => {
     setDrawerOpen(false);
   };
 
-  const handleSwitch = () => {
-    setChecked();
-  };
+
 
   console.log("Selected Shift:", selectedShift);
 
@@ -106,13 +104,15 @@ const ShiftPlanner = () => {
       setDrawerOpen(false);
     } catch (error) {
       console.error("Error updating the shift's employee:", error);
-      setError("Failed to update the employee for the shift.");
+      setError("Työntekijällä ei ole pätevyyttä. Työntekijää ei lisätty työvuoroon.");
     }
   };
 
   return (
     <Box
-      mt={10}
+      mt={20}
+      mb={20}
+      gap={10}
       borderRadius={5}
       sx={{
         display: "flex",
@@ -126,16 +126,18 @@ const ShiftPlanner = () => {
       }}
     >
       <Box mt={20} padding={3}>
-
-      
-      <Typography variant="h5" gutterBottom>
-        Select a date for the workday
-      </Typography>
-      <CalendarComponent startDate={startDate} setStartDate={setStartDate} />
-      </Box>
-      <Box mt={5} sx={{maxWidth: "100%" }}>
-        {error && <Typography color="error">{error}</Typography>}
         
+        <CalendarComponent startDate={startDate} setStartDate={setStartDate} />
+        <Box sx={{ textAlign: "center", marginTop: 2 }}>
+          <Button variant="contained" color="primary" onClick={saveNewWorkday}>
+            Tallenna
+          </Button>
+        </Box>
+      </Box>
+      <Box mt={5} sx={{ maxWidth: "100%" }}>
+        {error && <Alert color="error">{error}</Alert>}
+        {success && <Alert color="success">{success}</Alert>}
+
         <WorkdayHandler
           startDate={startDate ? startDate.format("DD-MM-YYYY") : null}
           workday={workday}
@@ -149,11 +151,6 @@ const ShiftPlanner = () => {
         employees={availableEmployees}
         onEmployeeSelect={handleEmployeeSelect}
       />
-      <Box sx={{ textAlign: "center", marginTop: 2 }}>
-        <Button variant="contained" color="primary" onClick={saveNewWorkday}>
-          Save Workday
-        </Button>
-      </Box>
     </Box>
   );
 };
