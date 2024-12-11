@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Box, Button, TextField, Typography, Container } from '@mui/material';
+import { Box, Button, TextField, Typography, Container, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "./AuthContext";
+import LoginIcon from '@mui/icons-material/Login';
 
 function Login() {
 
@@ -24,6 +25,14 @@ function Login() {
 
     return (
         <Container component="main" maxWidth="xs">
+            <Typography
+                textAlign='center'
+                variant='h1'
+                fontWeight={600}
+                sx={{color: '#191b1f'}}
+            >
+                Sign in to Shifter!
+            </Typography>
             <Box
                 sx={{
                     marginTop: 8,
@@ -76,8 +85,10 @@ function Login() {
                         color="primary"
                         sx={{ mt: 3, mb: 2 }}
                     >
-                        Sign In
+                        <LoginIcon />
+                        Log In
                     </Button>
+
                 </Box>
             </Box>
         </Container>

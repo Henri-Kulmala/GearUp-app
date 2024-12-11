@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 const UserHandler = () => {
 
   const [userList, setUserList] = useState([]);
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState(null);
   const [editedUser, setEditedUser] = useState({
     username: user?.username || "",
     password: "",
@@ -26,7 +26,7 @@ const UserHandler = () => {
       const response = await api.get("/api/users");
       console.log("Userlist fetched: ", response.data);
       setUserList(response.data);
-      console.log("Userlist set to: ", userList);
+
     } catch (error) {
       console.error("Error fetching users", error);
     }
@@ -41,7 +41,7 @@ const UserHandler = () => {
       const response = await api.get("/api/users/current");
       console.log("Current user fetched: ", response.data);
       setUser(response.data);
-      console.log("User set to: ", user.username);
+      
       setEditedUser({
         username: response.data.username,
         password: "",
@@ -50,14 +50,23 @@ const UserHandler = () => {
     } catch (error) {
       console.error("Error fetching current user", error);
     }
+    
   };
+  useEffect(() => {
+    if (!user) {
+      console.log("Fetching current user...");
+      getCurrentUser(); // Fetch current user on component mount
+    } else {
+      console.log("User updated: ", user);
+    }
+  }, [user]);
 
+ 
   const isValidPassword = (password) =>
     /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{5,30}$/.test(password);
 
   const handleUserEdit = async (e) => {
     e.preventDefault();
-    getCurrentUser();
     if (!user) {
       setError("No user selected to edit.");
       return;
@@ -75,12 +84,16 @@ const UserHandler = () => {
     }
 
     try {
-      const updatedUser = {
-        username: editedUser?.username || user.username,
-        password: editedUser?.password || user.password,
+      const payload = {
+        username: editedUser.username,
+        ...(editedUser.password && { password: editedUser.password }),
       };
+     
 
-      await api.patch(`/api/users/${user.userId}`, updatedUser);
+      await api.patch(`/api/users/${user.userId}`, payload);
+
+      console.log("patched user:", user, payload)
+      await getCurrentUser();
     } catch (error) {
       console.error("Error updating user", error);
       setError("Failed to update user.");

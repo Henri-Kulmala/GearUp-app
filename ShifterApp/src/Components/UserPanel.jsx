@@ -15,7 +15,7 @@ import TabPanel from '@mui/lab/TabPanel';
 
 import UserHandler from "./UserHandler";
 import UserForm from "./UserForm";
-import EditUsers from "./EditUsers";
+
 
 function UserPanel() {
   const [value, setValue] = useState("1");
@@ -99,7 +99,6 @@ function UserPanel() {
           <TabList value={value} onChange={handleChange}>
             <Tab value="1" label="User Profile" />
             <Tab value="2" label="User Form" />
-            <Tab value="3" label="Edit User" />
           </TabList>
         </Box>
 
@@ -109,9 +108,6 @@ function UserPanel() {
           </TabPanel>
           <TabPanel value="2">
             <UserForm />
-          </TabPanel>
-          <TabPanel value="3">
-            <EditUsers />
           </TabPanel>
         </Box>
       </TabContext>

@@ -8,31 +8,23 @@ import EmployeeHandler from "./EmployeeHandler";
 import { Box, Button, Typography, IconButton } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
-import OpenInFullIcon from '@mui/icons-material/OpenInFull';
-import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
+import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
 
 const ShiftPlanner = () => {
-  // Define the CSRF token function
-  
-
   const [checked, setChecked] = useState();
-  const fetchedEmployees = EmployeeHandler(); // Fetch employees
+  const fetchedEmployees = EmployeeHandler();
   const [availableEmployees, setAvailableEmployees] = useState([]);
   const [workday, setWorkday] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedShift, setSelectedShift] = useState(null);
-  const [startDate, setStartDate] = useState(null); // Selected date for the workday
+  const [startDate, setStartDate] = useState(null);
   const [error, setError] = useState(null);
 
-
-  // Fetch existing workday
   const fetchWorkday = async () => {
-    if (!startDate) return; // Don't fetch if no date is selected
+    if (!startDate) return;
     try {
       const formattedDate = startDate.format("DD-MM-YYYY");
-      const response = await api.get(
-        `workday/${formattedDate}`
-      );
+      const response = await api.get(`workday/${formattedDate}`);
 
       const fetchedWorkday = response.data;
       const groupedWorkday = fetchedWorkday.shifts.reduce((acc, shift) => {
@@ -42,15 +34,16 @@ const ShiftPlanner = () => {
       }, {});
 
       setWorkday(groupedWorkday);
-      setError(null); // Clear error if successful
+      setError(null);
     } catch (err) {
-      setError("Failed to fetch workday. Please check the selected date.");
+      setError(
+        "Ongelma työpäivän löytämisessä. Ole hyvä ja tarkista valitsemasi päivämäärä."
+      );
       console.error("Error fetching workday:", err);
       setWorkday({});
     }
   };
 
-  // Use useEffect to call fetchWorkday when startDate or csrfToken changes
   useEffect(() => {
     fetchWorkday();
   }, [startDate]);
@@ -59,26 +52,20 @@ const ShiftPlanner = () => {
     setAvailableEmployees(fetchedEmployees);
   }, [fetchedEmployees]);
 
-  // Function to handle saving the new workday
   const saveNewWorkday = async () => {
     if (!startDate) {
-      setError("Please select a date before saving.");
+      setError("Ole hyvä ja valitse päivämäärä ennen työpäivän tallentamista.");
       return;
     }
 
     try {
       const formattedDate = startDate.format("DD-MM-YYYY");
 
-      // Create the payload from the current workday state
       const shiftIds = Object.values(workday)
         .flat()
         .map((shift) => shift.shiftId);
 
-      // Send the PUT request to save the shifts for the selected date
-      await api.put(
-        `/api/workdays/${formattedDate}/shift`,
-        shiftIds, 
-      );
+      await api.put(`/api/workdays/${formattedDate}/shift`, shiftIds);
 
       setError(null);
       alert("Workday saved successfully!");
@@ -89,8 +76,8 @@ const ShiftPlanner = () => {
   };
 
   const handleOpenDrawer = (shift) => {
-    console.log("Opening Drawer with Shift:", shift); // Inspect the shift object
-    setSelectedShift(shift); // Store the entire shift object
+    console.log("Opening Drawer with Shift:", shift);
+    setSelectedShift(shift);
     setDrawerOpen(true);
   };
 
@@ -110,16 +97,13 @@ const ShiftPlanner = () => {
     console.log("Selected employee's ID", employee.employeeId);
 
     try {
-      // Send the updated employee to the server for the selected shift
       await api.patch(
         `/api/shifts/${selectedShift.shiftId}/${employee.employeeId}`,
-        { employee: employee.employeeId }, // Correct payload structure
-        
+        { employee: employee.employeeId }
       );
 
-      // Refresh the workday data after assigning the employee
       fetchWorkday();
-      setDrawerOpen(false); // Close the drawer after selecting the employee
+      setDrawerOpen(false);
     } catch (error) {
       console.error("Error updating the shift's employee:", error);
       setError("Failed to update the employee for the shift.");
@@ -127,50 +111,35 @@ const ShiftPlanner = () => {
   };
 
   return (
-    <Box mt={10}>
-      <Box
-        borderRadius={5}
-        sx={{
-          textAlign: "center",
-          padding: "20px",
-          backgroundColor: "#3a444a",
-          color: "#ffffff",
-          maxWidth: "70%",
-          marginLeft: "auto",
-          marginRight: "auto",
-        }}
-      >
-        <Typography variant="h5" gutterBottom>
-          Select a date for the workday
-        </Typography>
-        <CalendarComponent startDate={startDate} setStartDate={setStartDate} />
-      </Box>
-      <Box mt={5}>
-        {error && <Typography color="error">{error}</Typography>}
-        <Box
-          borderRadius={5}
-          sx={{
-            textAlign: "right",
-            backgroundColor: "#3a444a",
-            padding: "10px",
-            maxWidth: "30%",
-            marginLeft: "auto",
-            marginRight: "0",
-          }}
-        >
-          <FormControlLabel
-            control={<Switch checked={checked} onChange={handleSwitch} />}
-            
-          />
-          <IconButton >
-            <CloseFullscreenIcon sx={{color:"#eceff1"}}/>
-          </IconButton>
-        </Box>
+    <Box
+      mt={10}
+      borderRadius={5}
+      sx={{
+        display: "flex",
+        textAlign: "center",
+        padding: "20px",
+        backgroundColor: "#3a444a",
+        color: "#ffffff",
+        maxWidth: "100%",
+        marginLeft: "auto",
+        marginRight: "auto",
+      }}
+    >
+      <Box mt={20} padding={3}>
 
+      
+      <Typography variant="h5" gutterBottom>
+        Select a date for the workday
+      </Typography>
+      <CalendarComponent startDate={startDate} setStartDate={setStartDate} />
+      </Box>
+      <Box mt={5} sx={{maxWidth: "100%" }}>
+        {error && <Typography color="error">{error}</Typography>}
+        
         <WorkdayHandler
           startDate={startDate ? startDate.format("DD-MM-YYYY") : null}
           workday={workday}
-          onShiftAssign={handleOpenDrawer} // Use this for the "+"
+          onShiftAssign={handleOpenDrawer}
         />
       </Box>
       <DrawerComponent

@@ -229,7 +229,7 @@ const UserForm = () => {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <Typography variant="h2" gutterBottom>
+      <Typography variant="h2" gutterBottom sx={{color: "#191b1f"}}>
         {editedUser.userId ? "Edit User" : "Add User"}
       </Typography>
       {error && <Alert severity="error">{error}</Alert>}

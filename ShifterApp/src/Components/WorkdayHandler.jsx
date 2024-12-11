@@ -25,15 +25,16 @@ const WorkdayHandler = ({ startDate, workday, onShiftAssign }) => {
         color: "#ffffff",
       }}
     >
+      
       <Typography variant="h4" fontWeight={600} gutterBottom mb={5}>
-        Työvuorot päivämäärälle {startDate || "Select a date"}
+        Työvuorot päivämäärälle {startDate || "..."}
       </Typography>
       {Object.keys(workday).length === 0 ? (
         <Typography variant="body1" color="#f2f5a2">
-          No workday data available. Please check the selected date.
+          Työpäivää ei saatavilla. Ole hyvä ja valitsemasi päivämäärä.
         </Typography>
       ) : (
-        <Grid2 container spacing={3}>
+        <Grid2 container spacing={2}>
           {Object.keys(workday).map((workstation) => (
             <Grid2 item xs={12} sm={6} md={4} key={workstation}>
               <Box

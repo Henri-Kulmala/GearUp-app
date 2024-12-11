@@ -39,7 +39,7 @@ function NavBar() {
   };
 
   return (
-    <AppBar position="fixed" sx={{ backgroundColor: "#3a444a" }}>
+    <AppBar position="fixed" sx={{ backgroundColor: "#3a444a", paddingTop: 3}}>
       <Container maxWidth="xl">
         <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
           <Link
@@ -47,7 +47,8 @@ function NavBar() {
             style={{
               textDecoration: "none",
               color: "white",
-              fontSize: "25px",
+              fontSize: "40px",
+              fontWeight: 700,
               letterSpacing: "2px",
             }}
           >
@@ -93,13 +94,13 @@ function NavBar() {
           >
             <Link
               to="/shiftplanner"
-              style={{ textDecoration: "none", color: "white" }}
+              style={{ textDecoration: "none", color: "white", fontSize: "30px", }}
             >
               ShiftPlanner
             </Link>
             <Link
               to="/schedule"
-              style={{ textDecoration: "none", color: "white" }}
+              style={{ textDecoration: "none", color: "white", fontSize: "30px", }}
             >
               Schedule
             </Link>
