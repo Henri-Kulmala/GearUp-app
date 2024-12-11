@@ -35,7 +35,7 @@ const UserForm = () => {
   const openConfirmDialog = () => setConfirmDialogOpen(true);
   const closeConfirmDialog = () => setConfirmDialogOpen(false);
 
-  // Fetch Data
+
   const fetchEmployees = async () => {
     try {
       const response = await api.get("/api/employees");
@@ -62,7 +62,7 @@ const UserForm = () => {
   const isValidPassword = (password) =>
     /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{5,30}$/.test(password);
 
-  // When user is selected from Autocomplete
+
   const handleUserSelect = (selectedUser) => {
     if (selectedUser) {
       setOriginalUser(selectedUser);
@@ -77,7 +77,7 @@ const UserForm = () => {
           : "",
       });
     } else {
-      // No user selected => add mode
+
       setOriginalUser(null);
       setEditedUser({
         userId: "",
@@ -90,7 +90,7 @@ const UserForm = () => {
     }
   };
 
-  // When employee is selected from Autocomplete
+
   const handleEmployeeSelect = (selectedEmployee) => {
     if (selectedEmployee) {
       setEditedUser((prev) => ({
@@ -229,13 +229,13 @@ const UserForm = () => {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <Typography variant="h2" gutterBottom sx={{color: "#191b1f"}}>
-        {editedUser.userId ? "Edit User" : "Add User"}
+      <Typography variant="h2" fontWeight={600} gutterBottom sx={{color: "#191b1f"}}>
+        {editedUser.userId ? "Muokkaa käyttäjä" : "Lisää käyttäjä"}
       </Typography>
       {error && <Alert severity="error">{error}</Alert>}
 
       <form onSubmit={handleSubmit}>
-        {/* User Search/Edit (Autocomplete) */}
+
         <Box sx={{ display: "flex", alignItems: "center", marginBottom: 2 }}>
           <Box sx={{ flexGrow: 1 }}>
             <Autocomplete
@@ -256,7 +256,7 @@ const UserForm = () => {
             />
           </Box>
 
-          {/* Add delete icon next to autocomplete */}
+
           {editedUser.userId && (
             <IconButton
               aria-label="delete user"
@@ -268,7 +268,7 @@ const UserForm = () => {
           )}
         </Box>
 
-        {/* Employee Search (Autocomplete) */}
+
         <Autocomplete
           sx={{ marginBottom: 2 }}
           options={employeeList}
